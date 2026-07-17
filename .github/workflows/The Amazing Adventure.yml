@@ -1,0 +1,29 @@
+export ANDROID_NDK=/ruta/a/tu/ndk
+
+# arm64-v8a
+mkdir build-arm64-v8a && cd build-arm64-v8a
+cmake .. \
+  -DANDROID_ABI=arm64-v8a \
+  -DANDROID_PLATFORM=android-21 \
+  -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK/build/cmake/android.toolchain.cmake \
+  -DBUILD_SHARED_LIBS=ON \
+  -DWEBP_BUILD_CWEBP=OFF -DWEBP_BUILD_DWEBP=OFF \
+  -DWEBP_BUILD_GIF2WEBP=OFF -DWEBP_BUILD_IMG2WEBP=OFF \
+  -DWEBP_BUILD_VWEBP=OFF -DWEBP_BUILD_WEBPINFO=OFF \
+  -DWEBP_BUILD_EXTRAS=OFF
+cmake --build . -j
+cd ..
+
+# armeabi-v7a
+mkdir build-armeabi-v7a && cd build-armeabi-v7a
+cmake .. \
+  -DANDROID_ABI=armeabi-v7a \
+  -DANDROID_PLATFORM=android-21 \
+  -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK/build/cmake/android.toolchain.cmake \
+  -DBUILD_SHARED_LIBS=ON \
+  -DWEBP_BUILD_CWEBP=OFF -DWEBP_BUILD_DWEBP=OFF \
+  -DWEBP_BUILD_GIF2WEBP=OFF -DWEBP_BUILD_IMG2WEBP=OFF \
+  -DWEBP_BUILD_VWEBP=OFF -DWEBP_BUILD_WEBPINFO=OFF \
+  -DWEBP_BUILD_EXTRAS=OFF
+cmake --build . -j
+cd ..
