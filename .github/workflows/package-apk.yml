@@ -17,8 +17,11 @@ jobs:
       - name: Build unsigned APK
         run: |
           cd apk-src
+          # .so y resources.arsc SIN comprimir (requisito de Android 11+/API 30)
           zip -X0 -r ../app-unsigned.apk lib -i "*.so"
-          zip -X -r ../app-unsigned.apk . -x "lib/*.so"
+          zip -X0 ../app-unsigned.apk resources.arsc
+          # resto del contenido, comprimido normal
+          zip -X -r ../app-unsigned.apk . -x "lib/*.so" -x "resources.arsc"
 
       - name: Zipalign
         run: |
