@@ -1,0 +1,47 @@
+name: Package signed APK
+
+on:
+  workflow_dispatch:
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Extract APK source
+        run: |
+          mkdir -p apk-src
+          unzip -o apk-src.zip -d apk-src
+
+      - name: Build unsigned APK
+        run: |
+          cd apk-src
+          # .so y resources.arsc SIN comprimir (requisito de Android 11+/API 30)
+          zip -X0 -r ../app-unsigned.apk lib -i "*.so"
+          zip -X0 ../app-unsigned.apk resources.arsc
+          # resto del contenido, comprimido normal
+          zip -X -r ../app-unsigned.apk . -x "lib/*.so" -x "resources.arsc"
+
+      - name: Zipalign
+        run: |
+          BUILD_TOOLS=$(ls -d $ANDROID_HOME/build-tools/*/ | sort -V | tail -n 1)
+          "$BUILD_TOOLS/zipalign" -v -p 4 app-unsigned.apk app-aligned.apk
+
+      - name: Decode keystore
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | grep -v "CERTIFICATE" | base64 -d > mikey.jks
+
+      - name: Sign APK
+        run: |
+          BUILD_TOOLS=$(ls -d $ANDROID_HOME/build-tools/*/ | sort -V | tail -n 1)
+          "$BUILD_TOOLS/apksigner" sign \
+            --ks mikey.jks \
+            --ks-pass pass:${{ secrets.KEYSTORE_PASSWORD }} \
+            --out PentagonMan-signed.apk \
+            app-aligned.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PentagonMan-signed
+          path: PentagonMan-signed.apk
